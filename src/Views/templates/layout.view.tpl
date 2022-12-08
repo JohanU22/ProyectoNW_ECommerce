@@ -34,13 +34,12 @@
         <li><a href="index.php?page=home"><i class="fas fa-user-plus"></i>&nbsp;Catalogo de productos</a></li>
       </ul>
     </nav>
+    <span><a href="index.php?page=Mnt-Carretillaanons&mode=DSP"><i class="fa-solid fa-cart-shopping"></i></a></span>
+    <span class="username"><a href="index.php?page=carritoa"><i></i>Ver Carrito</a></span>
   </header>
   <main>
   {{{page_content}}}
   </main>
-  <footer>
-    <div>Todo los Derechos Reservados 2021 &copy;</div>
-  </footer>
   {{foreach EndScripts}}
     <script src="/{{~BASE_DIR}}/{{this}}"></script>
   {{endfor EndScripts}}

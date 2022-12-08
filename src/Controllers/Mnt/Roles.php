@@ -1,18 +1,17 @@
 <?php 
-
 namespace Controllers\Mnt;
 
 use Controllers\PublicController;
 use Dao\Dao;
 use Views\Renderer;
 
-class Usuarios extends PublicController{
+class Roles extends PublicController{
     public function run(): void
     {
         $viewData = array();
-        $viewData["usuarios"] = \Dao\Mnt\Usuarios::getAllUsuarios();
+        $viewData["roles"] = \Dao\Mnt\Roles::getAllRoles();
 
-        Renderer::render("mnt/usuarios", $viewData);
+        Renderer::render("mnt/roles", $viewData);
     }
 }
 ?>

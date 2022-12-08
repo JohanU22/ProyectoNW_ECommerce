@@ -47,7 +47,7 @@ class Security extends \Dao\Table
         return self::obtenerRegistros($sqlstr, array());
     }
 
-    static public function newUsuario($email, $password)
+    static public function newUsuario($email, $password, $username)
     {
         if (!\Utilities\Validators::IsValidEmail($email)) {
             throw new Exception("Correo no es válido");
@@ -65,13 +65,13 @@ class Security extends \Dao\Table
         unset($newUser["userpswdchg"]);
 
         $newUser["useremail"] = $email;
-        $newUser["username"] = "John Doe";
+        $newUser["username"] = $username;
         $newUser["userpswd"] = $hashedPassword;
         $newUser["userpswdest"] = Estados::ACTIVO;
         $newUser["userpswdexp"] = date('Y-m-d', time() + 7776000);  //(3*30*24*60*60) (m d h mi s)
         $newUser["userest"] = Estados::ACTIVO;
         $newUser["useractcod"] = hash("sha256", $email.time());
-        $newUser["usertipo"] = UsuarioTipo::PUBLICO;
+        $newUser["usertipo"] = UsuarioTipo::ADMINITRADAOR;
 
         $sqlIns = "INSERT INTO `usuario` (`useremail`, `username`, `userpswd`,
             `userfching`, `userpswdest`, `userpswdexp`, `userest`, `useractcod`,
@@ -84,7 +84,19 @@ class Security extends \Dao\Table
         return self::executeNonQuery($sqlIns, $newUser);
 
     }
+    static public function RecuperarContrasena($email,$password)
+    {
+        $sqlstr = "UPDATE `usuario` set `userpswd`=:userpswd where `useremail` = :useremail;";
+        $sqlParams =array("userpswd"=>self::_hashPassword($password),"useremail"=>$email);
+        return self::executeNonQuery($sqlstr, $sqlParams);
+    }
+    static public function getNombreUsuario($email)
+    {
+        $sqlstr = "SELECT username from `usuario` where `useremail` = :useremail ;";
+        $params = array("useremail"=>$email);
 
+        return self::obtenerUnRegistro($sqlstr, $params);
+    }
     static public function getUsuarioByEmail($email)
     {
         $sqlstr = "SELECT * from `usuario` where `useremail` = :useremail ;";

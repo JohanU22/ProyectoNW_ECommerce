@@ -35,9 +35,12 @@
         <li><a href="index.php?page=sec_logout"><i class="fas fa-sign-out-alt"></i>&nbsp;Salir</a></li>
       </ul>
     </nav>
+
+    
     {{with login}}
     <span class="username">{{userName}} <a href="index.php?page=sec_logout"><i class="fas fa-sign-out-alt"></i></a></span>
     {{endwith login}}
+    <span style="align-items: flex-end;"><a href="index.php?page=Mnt-Carretillaanons&mode=DSP"><i class="fa-solid fa-cart-shopping"></i></a></span>
   </header>
   <main>
     {{{page_content}}}

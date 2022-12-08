@@ -35,3 +35,7 @@ button.primary{
 button.primary:hover{
    box-shadow: 1px 1px 3px var(--primary_action_bg);
 }
+
+.buttonl{
+  align-content: flex-end;  
+}

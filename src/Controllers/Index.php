@@ -29,8 +29,26 @@ class Index extends PublicController
      */
     public function run() :void
     {
-        $viewData = array();
-        \Views\Renderer::render("index", $viewData);
+        $viewData = array(
+            "productos" => array(),
+            "login" =>array(),
+            "userName" => "", 
+            "hasProductos" => false
+        );
+        $viewData["productos"] = \Dao\Cart\Catalogo::getProductosDisponibles();
+
+        if(isset($_SESSION["login"])){
+            $viewData["login"] = $_SESSION["login"];
+            $viewData["userName"] = $viewData["login"]["userName"];
+        }else {
+            $_SESSION["newsession"]='Hola';
+            $viewData["login"] = $_SESSION["newsession"];
+            $viewData["userName"] = 'Libreria';
+        }
+
+
+        if (sizeof($viewData["productos"]) > 0) $viewData["hasProductos"] = true;
+        \Views\Renderer::render("home/home", $viewData);
     }
 }
 ?>

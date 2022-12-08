@@ -15,6 +15,7 @@ class Accept extends PublicController{
         } else {
             $dataview["orderjson"] = "No Order Available!!!";
         }
+        \Dao\Cart\Carrito::deleteAllCarretillaOfi();
         \Views\Renderer::render("paypal/accept", $dataview);
     }
 }

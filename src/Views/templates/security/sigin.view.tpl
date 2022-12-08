@@ -14,6 +14,12 @@
         {{endif errorEmail}}
       </div>
       <div class="row">
+      </div>
+        <section class="row my-2 align-center">
+          <label class="col-12 col-m-4 flex align-center" for="username" class="col-4">Nombre de usuario</label>
+          <input type="text" class="col-8" name="username" id="username" {{if readonly}}disabled {{endif readonly}} value="{{username}}" required>
+        </section>
+      <div class="row">
         <label class="col-12 col-m-4 flex align-center" for="txtPswd">Contraseña</label>
         <div class="col-12 col-m-8">
           <input class="width-full" type="password" id="txtPswd" name="txtPswd" value="{{txtPswd}}" />

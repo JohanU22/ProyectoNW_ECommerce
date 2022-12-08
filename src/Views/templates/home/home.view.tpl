@@ -1,7 +1,7 @@
 <style>
     :root {
   --primary-border-radius: 0.625rem;
-  --primary-background-color: #ebebeb;
+  --primary-background-color: #ffffff;
   --secondary-background-color: white;
   --terciary-background-color:hsl(6, 70%, 92%);
   --primary-font-color: #222;
@@ -252,14 +252,13 @@ i.fa {
 }
 
 </style>
-<?php include_once \Dao\Cart\CarretillaAnon.php ?>
 
 <body style="background-color:white ;">
-
+  
 <section class="books-container">
     {{if hasProductos}}
         {{foreach productos}}
-            <div class="book-item" id="{{idproductos}}">
+            <div class="book-item" id="{{codprd}}">
                 <div class="book-image-container">
                     <img src="{{imagen}}" alt="{{nombreProducto}}" class="book-image" />
                 </div>
@@ -268,18 +267,24 @@ i.fa {
                     <span class="book-autor">{{descripcionProducto}}</span>
                     <span class="book-precio">L.{{precio}}</span>
                 </div>
-                <?php if(ProductoYaEstaEnCarrito({{idproductos}})){?>
                   <div class="book-button-container">
-                      <a href="index.php?page=carrito&mode=INS&idproductos={{idproductos}}&cantidad=1"><span class="add-to-cart-button">En el carrito</span></a>
+                      <form class="book-button-container" action="index.php?page=Mnt-Carretillaanon&mode=DEL&codprd={{codprd}}" method="post">
+                          <input type="hidden" name="codprd" value="{{codprd}}">
+                          <button class="book-button-container" type="submit">
+                              <i class="add-to-cart-button">Quitar</i>
+                          </button>
+                      </form>
                   </div>
                   <div class="book-button-container">
-                      <a href="index.php?page=carrito&mode=INS&idproductos={{idproductos}}&cantidad=1"><span class="add-to-cart-button">Quitar</span></a>
+                      <form class="book-button-container" action="index.php?page=Mnt-Carretillaanon&mode=INS&codprd={{codprd}}" method="post">
+                          <input type="hidden" name="codprd" id="codprd" value="{{codprd}}">
+                          <input type="hidden" name="crrctd" id="crrctd" value=1>
+                          <input type="hidden" name="crrprc" id="crrprc" value="{{precio}}">
+                          <button class="book-button-container" type="submit">
+                              <i class="add-to-cart-button">Agregar al Carrito</i>
+                          </button>
+                      </form>
                   </div>
-                <?php } else { ?>
-                  <div class="book-button-container">
-                      <a href="index.php?page=carrito&mode=INS&idproductos={{idproductos}}&cantidad=1"><span class="add-to-cart-button">Añadir al carrito </span></a>
-                  </div>
-                <?php } ?>
             </div>
         {{endfor productos}}
     {{endif hasProductos}}

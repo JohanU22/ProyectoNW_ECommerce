@@ -7,22 +7,32 @@ use Controllers\PublicController;
 class Checkout extends PublicController{
     public function run():void
     {
-        $viewData = array();
-        if ($this->isPostBack()) {
+        $viewData = array(
+            "productosCarretillaOfi"=>array()
+        );
+
+            $viewData["login"] = $_SESSION["login"];
+        
+
             $PayPalOrder = new \Utilities\Paypal\PayPalOrder(
                 "test".(time() - 10000000),
-                "http://localhost/mvco/index.php?page=checkout_error",
-                "http://localhost/mvco/index.php?page=checkout_accept"
+                "http://localhost/proyectoecommerce/index.php?page=checkout_error",
+                "http://localhost/proyectoecommerce/index.php?page=checkout_accept"
             );
-            $PayPalOrder->addItem("Test", "TestItem1", "PRD1", 100, 15, 1, "DIGITAL_GOODS");
-            $PayPalOrder->addItem("Test 2", "TestItem2", "PRD2", 50, 7.5, 2, "DIGITAL_GOODS");
+
+            $idFactura = \Dao\Cart\Carrito::ObtenerIdFactura($_SESSION["login"]["userId"]);
+            //$totales = \Dao\Cart\CarretillaAnon::ObtenerTotales();
+            $totalesfact = \Dao\Cart\Carrito::ObtenerTotalesFactura($idFactura);
+            $datoscarrito = \Dao\Cart\Carrito::ObtenerProductosEnCarrito($_SESSION["login"]["userId"]);
+
+            foreach($datoscarrito as $carr){
+                $PayPalOrder->addItem($carr["nombreProducto"], $carr["descripcionProducto"], $carr["codprd"], $carr["crrprc"], 0.15, $carr["crrctd"], "DIGITAL_GOODS");
+            }
             $response = $PayPalOrder->createOrder();
             $_SESSION["orderid"] = $response[1]->result->id;
             \Utilities\Site::redirectTo($response[0]->href);
             die();
-        }
 
-        \Views\Renderer::render("paypal/checkout", $viewData);
     }
 }
 ?>

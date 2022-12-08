@@ -39,7 +39,26 @@ class Admin extends \Controllers\PrivateController
      */
     public function run() :void
     {
-        \Views\Renderer::render("admin/admin", array());
+        $viewData = array(
+            "productos" => array(),
+            "login" =>array(),
+            "userName" => "", 
+            "hasProductos" => false
+        );
+        $viewData["productos"] = \Dao\Cart\Catalogo::getProductosDisponibles();
+
+        if(isset($_SESSION["login"])){
+            $viewData["login"] = $_SESSION["login"];
+            $viewData["userName"] = $viewData["login"]["userName"];
+        }else {
+            $_SESSION["newsession"]='Hola';
+            $viewData["login"] = $_SESSION["newsession"];
+            $viewData["userName"] = 'Libreria';
+        }
+
+
+        if (sizeof($viewData["productos"]) > 0) $viewData["hasProductos"] = true;
+        \Views\Renderer::render("home/home", $viewData);
     }
 }
 ?>

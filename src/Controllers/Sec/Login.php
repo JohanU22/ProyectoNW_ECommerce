@@ -60,7 +60,7 @@ class Login extends \Controllers\PublicController
                                 \Utilities\Context::getContextByKey("redirto")
                             );
                         } else {
-                            \Utilities\Site::redirectTo("index.php");
+                            \Utilities\Site::redirectTo($_SERVER['HTTP_REFERER']);
                         }
                     }
                 } else {
