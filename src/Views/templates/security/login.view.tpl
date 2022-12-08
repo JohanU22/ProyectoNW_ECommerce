@@ -28,6 +28,9 @@
       </div>
     {{endif generalError}}
     <div class="row right flex-end px-4">
+      <p><a href="index.php?page=sec_recuperar">Olvide mi Contraseña</a></p>
+    </div>
+    <div class="row right flex-end px-4">
       <button class="primary" id="btnLogin" type="submit">Iniciar Sesión</button>
     </div>
     </section>

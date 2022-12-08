@@ -1,211 +1,273 @@
-<?php 
+<?php
 namespace Controllers\Mnt;
 
+use Controllers\PrivateController;
 use Controllers\PublicController;
-use Views\Renderer;
 
-class Usuario extends PublicController{
-    private $arrModeDsc = array(
-        "INS" => "Agregar nuevo Usuario",
-        "UPD" => "Editar %s %s",
-        "DEL" => "Eliminando %s %s",
-        "DSP" => "Detalle de %s %s"
-    );
-
-
-    private $viewData = array(
-        "mode"=>"",
-        "mode_dsc"=>"",
-        "usercod"=> -1,
-        "useremail"=> "",
-        "username"=>"",
-        "userpswd"=> "",
-        "userfching"=>"",
-        "userpswdest"=>"ACT",
-        "usPswACT_selected" => true,
-        "usPswCTR_selected" => false,
-
-        "userpswdexp"=>"",
-        "userest"=>"ACT",
-        "usACT_selected" => true,
-        "usCTR_selected" => false,
-
-        "useractcod"=>"",
-        "userpswdchg"=>"",
-        "usertipo"=>"ACT",
-        "usTipoACT_selected" => true,
-        "usTipoCTR_selected" => false,
-
-        "readOnly" => false,
-        "showSaveBtn" => true
-    );
-
-    public function run():void
+class Usuario extends PublicController
+{
+    private function nope()
     {
-        $this->onForm_loaded();
-        if($this->isPostBack()){ // isset($_POST["btnGuardar"])
-           $this->process_postback();
-        }
-        $this->pre_render();
-        Renderer::render("mnt/usuario", $this->viewData);
+        \Utilities\Site::redirectToWithMsg(
+            "index.php?page=mnt_usuarios",
+            "Ocurrió algo inesperado. Intente Nuevamente."
+        );
     }
-
-    private function onForm_loaded()
+    private function yeah()
     {
-        if(!isset($_GET["mode"])){
-            $this->errorHandler();
-        }
-        $this->viewData["mode"] = $_GET["mode"];
-        if(!isset($this->arrModeDsc[$this->viewData["mode"]])){
-            $this->errorHandler();
-        }
-        if($this->viewData["mode"]!=="INS"){
-            if(!isset($_GET["usercod"])){
-                $this->errorHandler();
+        \Utilities\Site::redirectToWithMsg(
+            "index.php?page=mnt_usuarios",
+            "Operación ejecutada Satisfactoriamente!"
+        );
+    }
+    public function run() :void
+    {
+        $viewData = array(
+            "mode_dsc"=>"",
+            "mode" => "",
+            "usercod" => "",
+            "useremail" => "",
+            "username" => "",
+            "userpswd" => "",
+            "userfching" => "",
+            "userpswdest_ACT"=>"",
+            "userpswdest_INA" => "",
+            "userpswdest_PLN"=>"",
+            "userpswdexp" => "",
+            "userest_ACT"=>"",
+            "userest_INA" => "",
+            "userest_PLN"=>"",
+            "useractcod" => "",
+            "userpswdchg" => "",
+            "usertipo_ACT"=>"",
+            "usertipo_INA" => "",
+            "usertipo_PLN"=>"",
+            "funciones" => array(),
+            "editarUsuario"=>true,
+            "quirarRol"=>false,
+            "hasErrors" => false,
+            "Errors" => array(),
+            "showaction"=>true,
+            "readonly" => false
+        );
+        $modeDscArr = array(
+            "INS" => "Nuevo Usuario",
+            "UPD" => "Editando Usuario (%s) %s",
+            "DEL" => "Eliminando Usuario (%s) %s",
+            "DSP" => "Detalle del Usuario (%s) %s"
+        );
+
+        if ($this->isPostBack()) {
+            // se ejecuta al dar click sobre guardar
+            $viewData["mode"] = $_POST["mode"];
+            $viewData["usercod"] = $_POST["usercod"] ;
+            $viewData["useremail"] = $_POST["useremail"];
+            $viewData["username"] = $_POST["username"];
+            $viewData["userpswd"] = $_POST["userpswd"] ;
+            $viewData["userfching"] = $_POST["userfching"];
+            $viewData["userpswdest"] = $_POST["userpswdest"];
+            $viewData["userpswdexp"] = $_POST["userpswdexp"];
+            $viewData["userest"] = $_POST["userest"] ;
+            $viewData["useractcod"] = $_POST["useractcod"];
+            $viewData["userpswdchg"] = $_POST["userpswdchg"];
+            $viewData["usertipo"] = $_POST["usertipo"];
+            $viewData["xsrftoken"] = $_POST["xsrftoken"];
+            // Validate XSRF Token
+            if (!isset($_SESSION["xsrftoken"]) || $viewData["xsrftoken"] != $_SESSION["xsrftoken"]) {
+                $this->nope();
             }
-            $usercod = intval($_GET["usercod"]);
-            $dbUsuario = \Dao\Mnt\Usuarios::getById($usercod);
-            \Utilities\ArrUtils::mergeFullArrayTo($dbUsuario, $this->viewData);
-        }
-    }
+            // Validaciones de Errores
+            if (\Utilities\Validators::IsEmpty($viewData["useremail"])) {
+                $viewData["hasErrors"] = true;
+                $viewData["Errors"][] = "El useremail no Puede Ir Vacio!";
+            }
+            if (\Utilities\Validators::IsEmpty($viewData["username"])) {
+                $viewData["hasErrors"] = true;
+                $viewData["Errors"][] = "El username no Puede Ir Vacio!";
+            }
+            if (\Utilities\Validators::IsEmpty($viewData["userpswd"])) {
+                $viewData["hasErrors"] = true;
+                $viewData["Errors"][] = "El userpswd no Puede Ir Vacio!";
+            }
+            if (\Utilities\Validators::IsEmpty($viewData["userfching"])) {
+                $viewData["hasErrors"] = true;
+                $viewData["Errors"][] = "El userfching no Puede Ir Vacio!";
+            }
+            if (!\Utilities\Validators::IsValidPassword($viewData["userpswd"])) {
+                $viewData["hasErrors"] = true;
+                $viewData["Errors"][] = "La contraseña debe tener al menos 8 caracteres una mayúscula, un número y un caracter especial.";
+            }
 
-    private function process_postback(){
-        if ($this->validate_inputs()){
-            switch($this->viewData["mode"]){
+
+            
+            /*if (($viewData["userpswdest"] == "INA"
+                || $viewData["userpswdest"] == "ACT"
+                || $viewData["userpswdest"] == "PLN"
+                ) == false
+            ) {
+                $viewData["hasErrors"] = true;
+                $viewData["Errors"][] = "userpswdest Incorrecto!";
+            }*/
+
+            if (\Utilities\Validators::IsEmpty($viewData["userpswdexp"])) {
+                $viewData["hasErrors"] = true;
+                $viewData["Errors"][] = "El userpswdexp no Puede Ir Vacio!";
+            }
+
+            /*if (($viewData["userest"] == "INA"
+                || $viewData["userest"] == "ACT"
+                || $viewData["userest"] == "PLN"
+                ) == false
+            ) {
+                $viewData["hasErrors"] = true;
+                $viewData["Errors"][] = "userest Incorrecto!";
+            }*/
+
+            if (\Utilities\Validators::IsEmpty($viewData["useractcod"])) {
+                $viewData["hasErrors"] = true;
+                $viewData["Errors"][] = "El useractcod no Puede Ir Vacio!";
+            }
+            if (\Utilities\Validators::IsEmpty($viewData["userpswdchg"])) {
+                $viewData["hasErrors"] = true;
+                $viewData["Errors"][] = "El userpswdchg no Puede Ir Vacio!";
+            }
+            
+
+            /*if (($viewData["usertipo"] == "INA"
+                || $viewData["usertipo"] == "ACT"
+                || $viewData["usertipo"] == "PLN"
+                ) == false
+            ) {
+                $viewData["hasErrors"] = true;
+                $viewData["Errors"][] = "usertipo Incorrecto!";
+            }*/
+
+            
+            if (!$viewData["hasErrors"]) {
+                switch($viewData["mode"]) {
                 case "INS":
-                    $this->on_insert_clicked();
+                    if (\Dao\Mnt\Usuarios::crearUsuario(
+                        $viewData["useremail"],
+                        $viewData["username"],
+                        \Dao\Mnt\Usuarios::_hashPassword($viewData["userpswd"]),
+                        $viewData["userfching"],
+                        $viewData["userpswdest"],
+                        $viewData["userpswdexp"],
+                        $viewData["userest"],
+                        $viewData["useractcod"],
+                        $viewData["userpswdchg"],
+                        $viewData["usertipo"]
+                    )
+                    ) {
+                        $this->yeah();
+                    }
                     break;
                 case "UPD":
-                    $this->on_update_clicked();
+                    if (\Dao\Mnt\Usuarios::editarUsuario(
+                        $viewData["useremail"],
+                        $viewData["username"],
+                        \Dao\Mnt\Usuarios::_hashPassword($viewData["userpswd"]),
+                        $viewData["userfching"],
+                        $viewData["userpswdest"],
+                        $viewData["userpswdexp"],
+                        $viewData["userest"],
+                        $viewData["useractcod"],
+                        $viewData["userpswdchg"],
+                        $viewData["usertipo"],
+                        $viewData["usercod"]
+                    )
+                    ) {
+                        $this->yeah();
+                    }
                     break;
                 case "DEL":
-                    $this->on_delete_clicked();
+                    if (\Dao\Mnt\Usuarios::eliminarUsuario(
+                        $viewData["usercod"]
+                    )
+                    ) {
+                        $this->yeah();
+                    }
                     break;
+                }
+            }
+        } else {
+            // se ejecuta si se refresca o viene la peticion
+            // desde la lista
+            if (isset($_GET["mode"])) {
+                if (!isset($modeDscArr[$_GET["mode"]])) {
+                    $this->nope();
+                }
+                $viewData["mode"] = $_GET["mode"];
+            } else {
+                $this->nope();
+            }
+            if (isset($_GET["usercod"])) {
+                $viewData["usercod"] = $_GET["usercod"];
+            } else {
+                if ($viewData["mode"] !=="INS") {
+                    $this->nope();
+                }
             }
         }
-    }
 
-    private function validate_inputs(){
-        /*
-        $this->viewData["useremail"] = $_POST["useremail"];
-        $this->viewData["username"] = $_POST["username"];
-        $this->viewData["userpswd"] = password_hash($_POST["userpswd"], PASSWORD_DEFAULT); 
-        $this->viewData["userfching"] = $_POST["userfching"];
-        $this->viewData["userpswdest"] = $_POST["userpswdest"];
-        $this->viewData["userpswdexp"] = $_POST["userpswdexp"];
-        $this->viewData["userest"] = $_POST["userest"];
-        $this->viewData["useractcod"] = $_POST["useractcod"];
-        $this->viewData["userpswdchg"] = $_POST["userpswdchg"];
-        $this->viewData["usertipo"] = $_POST["usertipo"];
-        // Validar las Entradas de Datos
-        */
-        return true;
-    }
-
-    private function on_update_clicked(){
-        $this->viewData["useremail"] = $_POST["useremail"];
-        $this->viewData["username"] = $_POST["username"];
-        $this->viewData["userpswd"] = password_hash($_POST["userpswd"], PASSWORD_DEFAULT); 
-        $this->viewData["userfching"] = date('y-m-d h:i:s'); //Obtener día actual
-        $this->viewData["userpswdest"] = $_POST["userpswdest"];
-        $this->viewData["userpswdexp"] = date('y-m-d h:i:s');//Obtener día actual
-        $this->viewData["userest"] = $_POST["userest"];
-        $this->viewData["useractcod"] = $_POST["useractcod"];
-        $this->viewData["userpswdchg"] = date('y-m-d h:i:s');//Obtener día actual
-        $this->viewData["usertipo"] = $_POST["usertipo"];
-        $updateResult = \Dao\Mnt\Usuarios::updateUsuarios(
-            $this->viewData["useremail"],
-            $this->viewData["username"],
-            $this->viewData["userpswd"],
-            $this->viewData["userfching"],
-            $this->viewData["userpswdest"],
-            $this->viewData["userpswdexp"],
-            $this->viewData["userest"],
-            $this->viewData["useractcod"],
-            $this->viewData["userpswdchg"],
-            $this->viewData["usertipo"],
-            $this->viewData["usercod"]
-        );
-        if($updateResult){
-             \Utilities\Site::redirectToWithMsg(
-                "index.php?page=Mnt-Usuarios",
-                "¡Registro Actualizado Exitosamente!"
-            );
-        }
-    }
-
-    private function on_delete_clicked(){
-        //$this->viewData["usercod"] = $_POST["usercod"];
-        $deleteResult = \Dao\Mnt\Usuarios::deleteUsuarios(
-            $this->viewData["usercod"]
-        );
-        if($deleteResult){
-             \Utilities\Site::redirectToWithMsg(
-                "index.php?page=Mnt-Usuarios",
-                "¡Registro Eliminado Exitosamente!"
-            );
-            
-        }
-    }
-    
-
-    private function on_insert_clicked(){
-        $this->viewData["useremail"] = $_POST["useremail"];
-        $this->viewData["username"] = $_POST["username"];
-        $this->viewData["userpswd"] = password_hash($_POST["userpswd"], PASSWORD_DEFAULT); 
-        $this->viewData["userfching"] = date('y-m-d h:i:s'); //Obtener día actual
-        $this->viewData["userpswdest"] = $_POST["userpswdest"];
-        $this->viewData["userpswdexp"] = date('y-m-d h:i:s');//Obtener día actual
-        $this->viewData["userest"] = $_POST["userest"];
-        $this->viewData["useractcod"] = $_POST["useractcod"];
-        $this->viewData["userpswdchg"] = date('y-m-d h:i:s');//Obtener día actual
-        $this->viewData["usertipo"] = $_POST["usertipo"];
-        $insertResult = \Dao\Mnt\Usuarios::AgregarUsuario(
-            $this->viewData["useremail"],
-            $this->viewData["username"],
-            $this->viewData["userpswd"],
-            $this->viewData["userfching"],
-            $this->viewData["userpswdest"],
-            $this->viewData["userpswdexp"],
-            $this->viewData["userest"],
-            $this->viewData["useractcod"],
-            $this->viewData["userpswdchg"],
-            $this->viewData["usertipo"]
-        );
-        if($insertResult){
-             \Utilities\Site::redirectToWithMsg(
-                "index.php?page=Mnt-Usuarios",
-                "¡Registro Guardado Exitsamente!"
-            );
-        }
-    }
-
-    private function pre_render(){
-        $this->viewData["usPswACT_selected"] = $this->viewData["userpswdest"] === "ACT";
-        $this->viewData["usPswCTR_selected"] = $this->viewData["userpswdest"] === "CTR";
-        $this->viewData["usACT_selected"] = $this->viewData["userest"] === "ACT";
-        $this->viewData["usCTR_selected"] = $this->viewData["userest"] === "CTR";
-        $this->viewData["usTipoACT_selected"] = $this->viewData["usertipo"] === "ACT";
-        $this->viewData["usTipoCTR_selected"] = $this->viewData["usertipo"] === "CTR";
-
-        if($this->viewData["mode"]!=='INS') {
-            $this->viewData["mode_dsc"] = sprintf(
-                $this->arrModeDsc[$this->viewData["mode"]],
-                $this->viewData["usercod"],
-                $this->viewData["username"]
-            );
+        // Hacer elementos en comun
+       
+        if ($viewData["mode"] == "INS") {
+            $viewData["mode_dsc"]  = $modeDscArr["INS"];
+            $viewData["editarUsuario"]=false;
         } else {
-            $this->viewData["mode_dsc"] = $this->arrModeDsc["INS"];
-        }
-        $this->viewData["readonly"] = ($this->viewData["mode"] == "DEL" || $this->viewData["mode"] == "DSP" );
-        $this->viewData["showSaveBtn"] = ($this->viewData["mode"] != "DSP");
-    }
-
-    private function errorHandler(){
-        \Utilities\Site::redirectToWithMsg(
-                "index.php?page=Mnt-Usuarios",
-                "¡Algo Inesperado sucedió!"
+            $tmpUsuario = \Dao\Mnt\Usuarios::obtenerUsuario($viewData["usercod"]);
+            $viewData["useremail"] = $tmpUsuario["useremail"];
+            $viewData["username"] = $tmpUsuario["username"];
+            $viewData["userpswd"] = $tmpUsuario["userpswd"];
+            $viewData["userfching"] = $tmpUsuario["userfching"];
+            $viewData["userpswdest_ACT"] = $tmpUsuario["userpswdest"] == "ACT" ? "selected": "";
+            $viewData["userpswdest_INA"] = $tmpUsuario["userpswdest"] == "INA" ? "selected" : "";
+            $viewData["userpswdest_PLN"] = $tmpUsuario["userpswdest"] == "PLN" ? "selected" : "";
+            $viewData["userpswdexp"] = $tmpUsuario["userpswdexp"];
+            $viewData["userest_ACT"] = $tmpUsuario["userest"] == "ACT" ? "selected": "";
+            $viewData["userest_INA"] = $tmpUsuario["userest"] == "INA" ? "selected" : "";
+            $viewData["userest_PLN"] = $tmpUsuario["userest"] == "PLN" ? "selected" : "";
+            $viewData["useractcod"] = $tmpUsuario["useractcod"];
+            $viewData["userpswdchg"] = $tmpUsuario["userpswdchg"];
+            $viewData["usertipo_ACT"] = $tmpUsuario["usertipo"] == "ACT" ? "selected": "";
+            $viewData["usertipo_INA"] = $tmpUsuario["usertipo"] == "INA" ? "selected" : "";
+            $viewData["usertipo_PLN"] = $tmpUsuario["usertipo"] == "PLN" ? "selected" : "";
+            
+            // Obteniendo funciones del rol.
+            $viewData["funciones"] = \Dao\Mnt\usuarioRoles::obtenerRolesPorUsuario($viewData["usercod"]);
+            //dd($viewData["funciones"]);
+            $viewData["mode_dsc"]  = sprintf(
+                $modeDscArr[$viewData["mode"]],
+                $viewData["usercod"],
+                $viewData["useremail"],
+                $viewData["username"],
+                $viewData["userpswd"],
+                $viewData["userfching"], 
+                $viewData["userpswdexp"],
+                $viewData["useractcod"],
+                $viewData["userpswdchg"]
             );
+            if ($viewData["mode"] == "DSP") {
+                $viewData["showaction"]= true ;
+                $viewData["readonly"] = "readonly";
+                $viewData["editarUsuario"] = true;
+                $viewData["quitarRol"] = false;
+            }
+            if ($viewData["mode"] == "DEL") {
+                $viewData["readonly"] = "readonly";
+                $viewData["editarUsuario"]=false;
+            }
+            if ($viewData["mode"] == "DEL") $viewData["readonly"] = "readonly";
+            if ($viewData["mode"] == "UPD") $viewData["editarFunciones"] = true;
+
+        }
+        // Generar un token XSRF para evitar esos ataques
+        $viewData["xsrftoken"] = md5($this->name . random_int(10000, 99999));
+        $_SESSION["xsrftoken"] = $viewData["xsrftoken"];
+        \Views\Renderer::render("mnt/usuario", $viewData);
     }
 }
+
+
 ?>

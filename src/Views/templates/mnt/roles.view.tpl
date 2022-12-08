@@ -1,32 +1,56 @@
-<h1>Listado de Roles</h1>
+<h1>Gestión de Categorías</h1>
+<section class="WWFilter">
+
+</section>
 <section class="WWList">
   <table>
     <thead>
       <tr>
         <th>Código</th>
-        <th>Descripción</th>
+        <th>Rol</th>
         <th>Estado</th>
-        <th><a href="index.php?page=Mnt-Rol&mode=INS" class="btn w32 depth-1">
-          <i class="fa-solid fa-cart-plus"></i>
-        </a></th>
+        <th>
+          {{if new_enabled}}
+          <button id="btnAdd">Nuevo</button>
+          {{endif new_enabled}}
+        </th>
       </tr>
     </thead>
     <tbody>
-      {{foreach roles}}
+      {{foreach items}}
       <tr>
-        <td><a href="index.php?page=Mnt-Rol&mode=DSP&rolescod={{rolescod}}" >{{rolescod}}</a></td>
-        <td>{{rolesdsc}}</td>
+        <td>{{rolescod}}</td>
+        <td><a href="index.php?page=mnt_rol&mode=DSP&rolescod={{rolescod}}">{{rolesdsc}}</a></td>
         <td>{{rolesest}}</td>
         <td>
-          <a class="mx-2 btn" href="index.php?page=Mnt-Rol&mode=UPD&rolescod={{rolescod}}">
-            <i class="fa-solid fa-pen-to-square"></i>
-          </a>
-          <a class="mx-2 btn" href="index.php?page=Mnt-Rol&mode=DEL&rolescod={{rolescod}}">
-            <i class="fa-solid fa-trash-can"></i>
-          </a>
+          {{if ~edit_enabled}}
+          <form action="index.php" method="get">
+             <input type="hidden" name="page" value="mnt_rol"/>
+              <input type="hidden" name="mode" value="UPD" />
+              <input type="hidden" name="rolescod" value={{rolescod}} />
+              <button type="submit">Editar</button>
+          </form>
+          {{endif ~edit_enabled}}
+          {{if ~delete_enabled}}
+          <form action="index.php" method="get">
+             <input type="hidden" name="page" value="mnt_rol"/>
+              <input type="hidden" name="mode" value="DEL" />
+              <input type="hidden" name="rolescod" value={{rolescod}} />
+              <button type="submit">Eliminar</button>
+          </form>
+          {{endif ~delete_enabled}}
         </td>
       </tr>
-      {{endfor roles}}
+      {{endfor items}}
     </tbody>
   </table>
 </section>
+<script>
+   document.addEventListener("DOMContentLoaded", function () {
+      document.getElementById("btnAdd").addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.location.assign("index.php?page=mnt_rol&mode=INS&rolescod=0");
+      });
+    });
+</script>

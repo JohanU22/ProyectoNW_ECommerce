@@ -1,34 +1,58 @@
-<h1>Listado de Funciones</h1>
+<h1>Gestión de Funciones</h1>
+<section class="WWFilter">
+
+</section>
 <section class="WWList">
   <table>
     <thead>
       <tr>
         <th>Código</th>
-        <th>Descripción</th>
+        <th>Funcion</th>
         <th>Estado</th>
         <th>Tipo</th>
-        <th><a href="index.php?page=Mnt-Funcion&mode=INS" class="btn w32 depth-1">
-          <i class="fa-solid fa-cart-plus"></i>
-        </a></th>
+        <th>
+          {{if new_enabled}}
+          <button id="btnAdd">Nuevo</button>
+          {{endif new_enabled}}
+        </th>
       </tr>
     </thead>
     <tbody>
-      {{foreach funciones}}
+      {{foreach items}}
       <tr>
-        <td><a href="index.php?page=Mnt-Funcion&mode=DSP&fncod={{fncod}}" >{{fncod}}</a></td>
-        <td>{{fndsc}}</td>
+        <td>{{fncod}}</td>
+        <td><a href="index.php?page=mnt_funcion&mode=DSP&fncod={{fncod}}">{{fndsc}}</a></td>
         <td>{{fnest}}</td>
         <td>{{fntyp}}</td>
         <td>
-          <a class="mx-2 btn" href="index.php?page=Mnt-Funcion&mode=UPD&fncod={{fncod}}">
-            <i class="fa-solid fa-pen-to-square"></i>
-          </a>
-          <a class="mx-2 btn" href="index.php?page=Mnt-Funcion&mode=DEL&fncod={{fncod}}">
-            <i class="fa-solid fa-trash-can"></i>
-          </a>
+          {{if ~edit_enabled}}
+          <form action="index.php" method="get">
+             <input type="hidden" name="page" value="mnt_funcion"/>
+              <input type="hidden" name="mode" value="UPD" />
+              <input type="hidden" name="fncod" value={{fncod}} />
+              <button type="submit">Editar</button>
+          </form>
+          {{endif ~edit_enabled}}
+          {{if ~delete_enabled}}
+          <form action="index.php" method="get">
+             <input type="hidden" name="page" value="mnt_funcion"/>
+              <input type="hidden" name="mode" value="DEL" />
+              <input type="hidden" name="fncod" value={{fncod}} />
+              <button type="submit">Eliminar</button>
+          </form>
+          {{endif ~delete_enabled}}
         </td>
       </tr>
-      {{endfor funciones}}
+      {{endfor items}}
     </tbody>
   </table>
 </section>
+<script>
+   document.addEventListener("DOMContentLoaded", function () {
+      document.getElementById("btnAdd").addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.location.assign("index.php?page=mnt_funcion&mode=INS&fncod=0");
+      });
+    });
+</script>

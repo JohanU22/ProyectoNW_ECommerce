@@ -53,7 +53,7 @@ class Admin extends \Controllers\PrivateController
         }else {
             $_SESSION["newsession"]='Hola';
             $viewData["login"] = $_SESSION["newsession"];
-            $viewData["userName"] = 'Libreria';
+            $viewData["userName"] = 'Tienda';
         }
 
 

@@ -30,7 +30,10 @@
       <ul>
         <li><a href="index.php?page=admin_admin"><i class="fas fa-home"></i>&nbsp;Inicio</a></li>
         {{foreach NAVIGATION}}
-            <li><a href="{{nav_url}}">{{nav_label}}</a></li>
+            <li><a href="{{nav_url1}}"><i class="fa-solid fa-user"></i>&nbsp;{{nav_label1}}</a></li>
+            <li><a href="{{nav_url2}}"><i class="fa-solid fa-list-check"></i>&nbsp;{{nav_label2}}</a></li>
+            <li><a href="{{nav_url3}}"><i class="fa-solid fa-list-check"></i>&nbsp;{{nav_label3}}</a></li>
+            <li><a href="{{nav_url4}}"><i class="fa-solid fa-cart-shopping"></i>&nbsp;{{nav_label4}}</a></li>
         {{endfor NAVIGATION}}
         <li><a href="index.php?page=sec_logout"><i class="fas fa-sign-out-alt"></i>&nbsp;Salir</a></li>
       </ul>
@@ -40,7 +43,7 @@
     {{with login}}
     <span class="username">{{userName}} <a href="index.php?page=sec_logout"><i class="fas fa-sign-out-alt"></i></a></span>
     {{endwith login}}
-    <span style="align-items: flex-end;"><a href="index.php?page=Mnt-Carretillaanons&mode=DSP"><i class="fa-solid fa-cart-shopping"></i></a></span>
+    <span style="align-items: flex-end;"><a href="index.php?page=carrito&mode=DSP"><i class="fa-solid fa-cart-shopping"></i></a></span>
   </header>
   <main>
     {{{page_content}}}

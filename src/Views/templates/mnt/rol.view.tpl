@@ -1,40 +1,105 @@
+<style>
+  h2 {
+    margin-bottom: 0 !important;
+  }
+  .funciones {
+    display: flex;
+    flex-flow: row nowrap;
+  }
+  .fnitems {
+    display: flex;
+    flex-flow: row nowrap;
+    background: #f0f0f0;
+    border: 1px solid #333;
+    margin: .3125em;
+    padding: .3125em;
+    cursor: pointer;
+    border-radius: .3125em;
+    overflow: hidden;
+    box-shadow: 3px 10px 1rem 1px rgba(0, 0, 0, 0.1);
+  }
+
+  button {
+    border: none !important;
+  }
+
+  .btn-remove-funcion {
+    height: 100% !important;
+    border-radius: .3125em !important;
+    margin-left: .3125em;
+    background-color: hsla(0, 60%, 40%, 1);
+  }
+</style>
 <h1>{{mode_dsc}}</h1>
-<form action="index.php?page=Mnt-Rol&mode={{mode}}&rolescod={{rolescod}}" method="post" class="row col-6 offset-3" autocomplete="off">
-
-    <section class="row my-2 align-center">
-      <label for="rolescod" class="col-4">Código de rol</label>
-      <input type="text" class="col-8" name="rolescod" id="rolescod" 
-      placeholder="Ingrese el código de rol" {{if readonly}}disabled {{endif readonly}} value="{{rolescod}}" required>
+<section>
+  <form action="index.php?page=mnt_rol&mode={{mode}}&rolescod={{rolescod}}"
+    method="POST" >
+    <section>
+    <label for="rolescod">Código</label>
+    <input type="hidden" id="rolescod" name="rolescod" value="{{rolescod}}"/>
+    <input type="hidden" id="mode" name="mode" value="{{mode}}" />
+    <input type="hidden" id="xsrftoken" name="xsrftoken" value="{{xsrftoken}}" />
+    <input type="text" readonly name="rolcoddummy" value="{{rolescod}}"/>
     </section>
-
-    <section class="row my-2 align-center">
-      <label for="rolesdsc" class="col-4">Descripción</label>
-      <input type="text" class="col-8" name="rolesdsc" id="rolesdsc"
-      placeholder="Ingrese la descripción del rol" {{if readonly}}disabled {{endif readonly}} value="{{rolesdsc}}" required>
+    <section>
+      <label for="rolesdsc">Roles</label>
+      <input type="text" {{readonly}} name="rolesdsc" value="{{rolesdsc}}" maxlength="45" placeholder="Nombre de Categoría"/>
     </section>
-
-    <section class="row my-2 align-center">
-      <label for="rolesest" class="col-4">Estado</label>
-      <select name="rolesest" class="col-8" id="rolesest" {{if readonly}}disabled {{endif readonly}}>
-        <option value="ACT" {{if rolACT_selected}}selected{{endif rolACT_selected}}>Activo</option>
-        <option value="CTR" {{if rolCTR_selected}}selected{{endif rolCTR_selected}}>Inactivo</option>
+    <section>
+      <label for="rolesest">Estado</label>
+      {{if readonly}}
+       <input type="hidden" id="rolesestdummy" name="rolesest" value="" />
+      {{endif readonly}}
+      <select id="rolesest" name="rolesest" {{if readonly}}disabled{{endif readonly}}>
+        <option value="ACT" {{rolesest_ACT}}>Activo</option>
+        <option value="INA" {{rolesest_INA}}>Inactivo</option>
+        <option value="PLN" {{rolesest_PLN}}>Planificación</option>
       </select>
     </section>
+    {{if hasErrors}}
+        <section>
+          <ul>
+            {{foreach Errors}}
+                <li>{{this}}</li>
+            {{endfor Errors}}
+          </ul>
+        </section>
+    {{endif hasErrors}}
+    
+    <div class="funciones-title">
+      <h2>Funciones del rol</h2>
+      {{if editarFunciones}}
+        <a href="index.php?page=mnt_funcionrol&mode={{mode}}&rolescod={{rolescod}}">Editar</a>
+      {{endif editarFunciones}}
+    
 
-    <br/><br/>
-    <section class="row flex-end my-2">
-      {{if showSaveBtn}}
+    </div>
 
-      <button class="mx-2 primary"  type="submit" name="btnGuardar">Guardar</button>
-
-      {{endif showSaveBtn}}
-
-      <button id="btnCancelar">Cancelar</button>
+    <section class="funciones">
+    {{foreach funciones}}
+        <div class="fnitems">
+          <p>{{fndsc}}</p>
+        </div>
+    {{endfor funciones}}
     </section>
-    <script>
-      document.getElementById("btnCancelar").addEventListener("click", function(event){
-        event.preventDefault();
-        window.location.href = "index.php?page=Mnt-Roles";
+
+
+    <section>
+      {{if showaction}}
+      <button type="submit" name="btnGuardar" value="G">Guardar</button>
+      {{endif showaction}}
+      <button type="button" id="btnCancelar">Cancelar</button>
+    </section>
+  </form>
+</section>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function(){
+      document.getElementById("btnCancelar").addEventListener("click", function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        window.location.assign("index.php?page=mnt_roles");
       });
-    </script>
-</form>
+  });
+</script>

@@ -1,180 +1,160 @@
-<?php 
+<?php
+
 namespace Controllers\Mnt;
 
 use Controllers\PublicController;
 use Views\Renderer;
 
-class Funcion extends PublicController{
-    private $arrModeDsc = array(
-        "INS" => "Agregar nueva Función",
-        "UPD" => "Editar %s %s",
-        "DEL" => "Eliminando %s %s",
-        "DSP" => "Detalle de %s %s"
-    );
-
-    private $viewData = array(
-        "mode"=>"",
-        "mode_dsc"=>"",
-
-        "fncod"=> "",
-        "fndsc"=>"",
-        "fnest"=>"ACT",
-        "fnEstACT_selected" => true,
-        "fnEstCTR_selected" => false,
-
-        "fntyp"=>"ACT",
-        "fnTypACT_selected" => true,
-        "fnTypCTR_selected" => false,        
-
-        "readOnly" => false,
-        "showSaveBtn" => true
-    );
-
-    public function run():void
+class Funcion extends PublicController
+{
+    private function nope($linea)
     {
-        $this->onForm_loaded();
-        if($this->isPostBack()){ // isset($_POST["btnGuardar"])
-           $this->process_postback();
-        }
-        $this->pre_render();
-        Renderer::render("mnt/funcion", $this->viewData);
+        \Utilities\Site::redirectTowithMsg(
+            "index.php?page=mnt_funciones",
+            "Ocurrió algo inesperado en la línea $linea, Intente de nuevo."
+        );
     }
 
-    private function onForm_loaded()
+    private function yeah()
     {
-        if(!isset($_GET["mode"])){
-            $this->errorHandler();
-        }
-        $this->viewData["mode"] = $_GET["mode"];
-        if(!isset($this->arrModeDsc[$this->viewData["mode"]])){
-            $this->errorHandler();
-        }
-        if($this->viewData["mode"]!=="INS"){
-            if(!isset($_GET["fncod"])){
-                $this->errorHandler();
+        \Utilities\Site::redirectTowithMsg(
+            "index.php?page=mnt_funciones",
+            "¡Operación realizada exitosamente!"
+        );
+    }
+
+    public function run(): void
+    {
+        $viewData = array(
+            "mode_dsc" => "",
+            "mode" => "",
+            "fncod" => "",
+            "fndsc" => "",
+            "fnest_ACT" => "",
+            "fnest_INA" => "",
+            "fnest_PLN" => "",
+            "fntyp" => "",
+            "fntyp_ACT" => "",
+            "fntyp_INA" => "",
+            "fntyp_PLN" => "",
+            "funciones" => array(),
+            "quitarFuncion" => true,
+            "editarFunciones" => false,
+            "hasErrors" => false,
+            "Errors" => array(),
+            "showaction" => true,
+            "readonly" => false
+        );
+        $modeDscArray = array(
+            "INS" => "Nueva funcion",
+            "UPD" => "Editando funcion (%s) %s",
+            "DEL" => "Eliminando funcion (%s) %s",
+            "DSP" => "Detalle de la funcion",
+        );
+
+        if ($this->isPostBack()) {
+            // dd($_POST);
+            $viewData["mode"] = $_POST["mode"];
+            $viewData["fncod"] = $_POST["fncod"];
+            $viewData["fndsc"] = $_POST["fndsc"];
+            $viewData["fnest"] = $_POST["fnest"];
+            $viewData["fntyp"] = $_POST["fntyp"];
+            $viewData["xsrftoken"] = $_POST["xsrftoken"];
+
+            if (!isset($_SESSION["xsrftoken"]) || $viewData["xsrftoken"] != $_SESSION["xsrftoken"]) {
+                dd($viewData);
+                $this->nope("63");
             }
-            $fncod = $_GET["fncod"];
-            $dbFuncion = \Dao\Mnt\Funciones::getById($fncod);
-            \Utilities\ArrUtils::mergeFullArrayTo($dbFuncion, $this->viewData);
-        }
-    }
-
-    private function process_postback(){
-        if ($this->validate_inputs()){
-            switch($this->viewData["mode"]){
-                case "INS":
-                    $this->on_insert_clicked();
-                    break;
-                case "UPD":
-                    $this->on_update_clicked();
-                    break;
-                case "DEL":
-                    $this->on_delete_clicked();
-                    break;
+            if (\Utilities\Validators::IsEmpty($viewData["fndsc"])) {
+                $viewData["hasErrors"] = true;
+                $viewData["Errors"][] = "El nombre de la funcion no puede ir vacio!";
             }
-        }
-    }
+            if (($viewData["fnest"] == "INA" ||
+                    $viewData["fnest"] == "ACT" ||
+                    $viewData["fnest"] == "PLN") == false
+            ) {
+                $viewData["hasErrors"] = true;
+                $viewData["Errors"][] = "Estado de la funcion es incorrecto";
+            }
 
-    private function validate_inputs(){
-        /*
-
-        "fncod"=> "",
-        "fndsc"=>"",
-        "fnest"=>"ACT",
-        "fnEstACT_selected" => true,
-        "fnEstCTR_selected" => false,
-
-        "fntyp"=>"ACT",
-        "fnTypACT_selected" => true,
-        "fnTypCTR_selected" => false,  
-
-        $this->viewData["fndsc"] = $_POST["fndsc"];
-        $this->viewData["fnest"] = $_POST["fnest"];
-        $this->viewData["fncod"] = $_POST["fncod"];
-        $this->viewData["fntyp"] = $_POST["fntyp"];
-        // Validar las Entradas de Datos
-        */
-        return true;
-    }
-
-    private function on_update_clicked(){
-        $this->viewData["fndsc"] = $_POST["fndsc"];
-        $this->viewData["fnest"] = $_POST["fnest"];
-        $this->viewData["fncod"] = $_POST["fncod"];
-        $this->viewData["fntyp"] = $_POST["fntyp"];
-        $updateResult = \Dao\Mnt\Funciones::updateFunciones(
-            $this->viewData["fndsc"],
-            $this->viewData["fnest"],
-            $this->viewData["fncod"],
-            $this->viewData["fntyp"]            
-        );
-        if($updateResult){
-             \Utilities\Site::redirectToWithMsg(
-                "index.php?page=Mnt-Funciones",
-                "¡Registro Actualizado Exitosamente!"
-            );
-        }
-    }
-
-    private function on_delete_clicked(){
-        $deleteResult = \Dao\Mnt\Funciones::deleteFunciones(
-            $this->viewData["fncod"]
-        );
-        if($deleteResult){
-             \Utilities\Site::redirectToWithMsg(
-                "index.php?page=Mnt-Funciones",
-                "¡Registro Eliminado Exitosamente!"
-            );
-            
-        }
-    }
-    
-
-    private function on_insert_clicked(){
-        $this->viewData["fndsc"] = $_POST["fndsc"];
-        $this->viewData["fnest"] = $_POST["fnest"];
-        $this->viewData["fncod"] = $_POST["fncod"];
-        $this->viewData["fntyp"] = $_POST["fntyp"];
-        $insertResult = \Dao\Mnt\Funciones::AgregarFunciones(
-            $this->viewData["fndsc"],
-            $this->viewData["fnest"],
-            $this->viewData["fncod"],
-            $this->viewData["fntyp"]           
-        );
-        if($insertResult){
-             \Utilities\Site::redirectToWithMsg(
-                "index.php?page=Mnt-Funciones",
-                "¡Registro Guardado Exitsamente!"
-            );
-        }
-    }
-
-    private function pre_render(){
-        $this->viewData["fnEstACT_selected"] = $this->viewData["fnest"] === "ACT";
-        $this->viewData["fnEstCTR_selected"] = $this->viewData["fnest"] === "CTR";
-
-        $this->viewData["fnTypACT_selected"] = $this->viewData["fntyp"] === "ACT";
-        $this->viewData["fnTypCTR_selected"] = $this->viewData["fntyp"] === "CTR";
-
-        if($this->viewData["mode"]!=='INS') {
-            $this->viewData["mode_dsc"] = sprintf(
-                $this->arrModeDsc[$this->viewData["mode"]],
-                $this->viewData["fncod"],
-                $this->viewData["fnest"]
-                //$this->viewData["fndsc"]
-            );
+            if (($viewData["fntyp"] == "INA" ||
+                    $viewData["fntyp"] == "ACT" ||
+                    $viewData["fntyp"] == "PLN") == false
+            ) {
+                $viewData["hasErrors"] = true;
+                $viewData["Errors"][] = "Tipo de la funcion es incorrecto";
+            }
+            // dd($viewData);
+            if (!$viewData["hasErrors"]) {
+                switch ($viewData["mode"]) {
+                    case "INS":
+                        if (\Dao\Mnt\Funciones::insertarFuncion(
+                            \Dao\Mnt\Funciones::GUID(),
+                            $viewData["fndsc"],
+                            $viewData["fnest"],
+                            $viewData["fntyp"]
+                        )) {
+                            $this->yeah();
+                        }
+                        break;
+                    case "UPD":
+                        if (\Dao\Mnt\Funciones::actualizarFuncion(
+                            $viewData["fncod"],
+                            $viewData["fndsc"],
+                            $viewData["fnest"],
+                            $viewData["fntyp"]
+                        )) {
+                            $this->yeah();
+                        }
+                        break;
+                    case "DEL":
+                        if (\Dao\Mnt\Funciones::eliminarFuncione($viewData["fncod"])) {
+                            $this->yeah();
+                        }
+                        break;
+                    default:
+                        $this->nope("114");
+                }
+            }
         } else {
-            $this->viewData["mode_dsc"] = $this->arrModeDsc["INS"];
+            if (isset($_GET["mode"])) {
+                if (!isset($modeDscArray[$_GET["mode"]])) $this->nope("119");
+                $viewData["mode"] = $_GET["mode"];
+            } else $this->nope("121");
+            if (isset($_GET["fncod"])) $viewData["fncod"] = $_GET["fncod"];
+            else {
+                if ($viewData["mode"] !== "INS") $this->nope("124");
+            }
         }
-        $this->viewData["readonly"] = ($this->viewData["mode"] == "DEL" || $this->viewData["mode"] == "DSP" );
-        $this->viewData["showSaveBtn"] = ($this->viewData["mode"] != "DSP");
-    }
 
-    private function errorHandler(){
-        \Utilities\Site::redirectToWithMsg(
-                "index.php?page=Mnt-Funciones",
-                "¡Algo Inesperado sucedió!"
+        if ($viewData["mode"] == "INS") {
+            $viewData["mode_dsc"] = $modeDscArray["INS"];
+        } else {
+            $tmpFuncion = \Dao\Mnt\Funciones::obtenerFuncion($viewData["fncod"]);
+            $viewData["fndsc"] = $tmpFuncion["fndsc"];
+            $viewData["fnest_ACT"] = $tmpFuncion["fnest"] == "ACT" ? "selected" : "";
+            $viewData["fnest_INA"] = $tmpFuncion["fnest"] == "INA" ? "selected" : "";
+            $viewData["fnest_PLN"] = $tmpFuncion["fnest"] == "PLN" ? "selected" : "";
+
+            $viewData["fntyp_ACT"] = $tmpFuncion["fntyp"] == "ACT" ? "selected" : "";
+            $viewData["fntyp_INA"] = $tmpFuncion["fntyp"] == "INA" ? "selected" : "";
+            $viewData["fntyp_PLN"] = $tmpFuncion["fntyp"] == "PLN" ? "selected" : "";
+
+            $viewData["mode_dsc"] = sprintf(
+                $modeDscArray[$viewData["mode"]],
+                $viewData["fncod"],
+                $viewData["fndsc"]
             );
+            if ($viewData["mode"] == "DSP") {
+                $viewData["showaction"] = false;
+                $viewData["readonly"] = "readonly";
+                $viewData["quitarFuncion"] = false;
+                $viewData["editarFuncion"] = true;
+            }
+            if ($viewData["mode"] == "DEL") $viewData["readonly"] = "readonly";
+        }
+        $viewData["xsrftoken"] = md5($this->name . random_int(10000, 99999));
+        $_SESSION["xsrftoken"] = $viewData["xsrftoken"];
+        Renderer::render("mnt/funcion", $viewData);
     }
 }
-?>

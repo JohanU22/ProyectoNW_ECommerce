@@ -84,6 +84,7 @@ class ComposerStaticInit8e0e0d2b9fea0788e75a2652f2e651b4
             'PhpParser\\' => 10,
             'PayPalHttp\\' => 11,
             'PayPalCheckoutSdk\\' => 18,
+            'PHPMailer\\PHPMailer\\' => 20,
         ),
         'M' => 
         array (
@@ -316,6 +317,10 @@ class ComposerStaticInit8e0e0d2b9fea0788e75a2652f2e651b4
         'PayPalCheckoutSdk\\' => 
         array (
             0 => __DIR__ . '/..' . '/paypal/paypal-checkout-sdk/lib/PayPalCheckoutSdk',
+        ),
+        'PHPMailer\\PHPMailer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
         ),
         'Monolog\\' => 
         array (

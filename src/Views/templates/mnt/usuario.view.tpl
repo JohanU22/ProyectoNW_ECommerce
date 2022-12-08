@@ -1,68 +1,153 @@
-<h1>{{mode_dsc}}</h1>
-<form action="index.php?page=Mnt-Usuario&mode={{mode}}&usercod={{usercod}}" method="post" class="row col-6 offset-3" autocomplete="off">
-
-    <section class="row my-2 align-center">
-      <label for="useremail" class="col-4">Email</label>
-      <input type="email" class="col-8" name="useremail" id="useremail" 
-      placeholder="Ingrese su correo" {{if readonly}}disabled {{endif readonly}} value="{{useremail}}" required>
+<style>
+    label{
+        padding-right: 50px;
+        padding-bottom: 500px;
+    }
+    section{
+        padding-right: 15px;
+        padding-bottom: 25px;
+        
+    }
+    .grid{
+        
+        display: grid;
+        grid-template-columns: repeat(3,auto);
+    }
+    .centro{
+        width: 1100px;
+        display: block;
+        margin: auto;
+    }
+    input[type="text"],
+    input[type="date"],input[type="password"],select{
+        width: 300px;
+        margin-top: 10px;
+        
+    }
+    button{
+        margin-right: 15px;
+    }
+</style>
+  
+<section class="centro">
+    <h1>{{mode_dsc}}</h1>
+  <form action="index.php?page=mnt_usuario&mode={{mode}}&usercod={{usercod}}"
+    method="POST" >
+    <div class="grid">
+        <section>
+    <label for="usercod">Código Usuario</label>
+    <input type="hidden" id="usercod" name="usercod" value="{{usercod}}"/>
+    <input type="hidden" id="mode" name="mode" value="{{mode}}" />
+    <input type="hidden" id="xsrftoken" name="xsrftoken" value="{{xsrftoken}}" />
+    <input type="text" readonly name="usercoddummy" value="{{usercod}}"/>
     </section>
-
-    <section class="row my-2 align-center">
-      <label for="username" class="col-4">Nombre de usuario</label>
-      <input type="text" class="col-8" name="username" id="username" 
-      placeholder="Ingrese su nombre de usuario" {{if readonly}}disabled {{endif readonly}} value="{{username}}" required>
+    <section>
+      <label for="useremail">Usuario Email</label>
+      <input type="text" {{readonly}} name="useremail" value="{{useremail}}" maxlength="450" placeholder="Direccion de Correo"/>
     </section>
-
-    <section class="row my-2 align-center">
-      <label for="userpswd" class="col-4">Contraseña</label>
-      <input type="text" class="col-8" name="userpswd" id="userpswd"
-      placeholder="Ingrese su contraseña" {{if readonly}}disabled {{endif readonly}} value="{{userpswd}}" required>
+    <section>
+      <label for="username">Usuario nombre</label>
+      <input type="text" {{readonly}} name="username" value="{{username}}" maxlength="450" placeholder="Nombre de Usuario"/>
     </section>
-
-    <section class="row my-2 align-center">
-      <label for="userpswdest" class="col-4">Estado de contraseña</label>
-      <select name="userpswdest" class="col-8" id="userpswdest" {{if readonly}}disabled {{endif readonly}}>
-        <option value="ACT" {{if usPswACT_selected}}selected{{endif usPswACT_selected}}>Activo</option>
-        <option value="CTR" {{if usPswCTR_selected}}selected{{endif usPswCTR_selected}}>Inactivo</option>
+    <section>
+      <label for="userpswd">Usuario password</label>
+      <input type="password"  name="userpswd" value="{{userpswd}}" maxlength="450" placeholder="Contraseña"/>
+    </section>
+    <section>
+      <label for="userfching">Usuario fecha</label>
+      <input type="date" {{readonly}} name="userfching" value="{{userfching}}" maxlength="450" placeholder="Fecha"/>
+    </section>
+    <section>
+      <label for="userpswdest">userpswdest</label>
+      {{if readonly}}
+       <input type="hidden" id="userpswdestdummy" name="userpswdest" value="" />
+      {{endif readonly}}
+      <select id="userpswdest" name="userpswdest" {{if readonly}}disabled{{endif readonly}}>
+        <option value="ACT" {{userpswdest_ACT}}>Activo</option>
+        <option value="INA" {{userpswdest_INA}}>Inactivo</option>
+        <option value="PLN" {{userpswdest_PLN}}>Planificación</option>
       </select>
     </section>
-
-    <section class="row my-2 align-center">
-      <label for="userest" class="col-4">Estado del usuario</label>
-      <select name="userest" class="col-8" id="userest" {{if readonly}}disabled {{endif readonly}}>
-        <option value="ACT" {{if usACT_selected}}selected{{endif usACT_selected}}>Activo</option>
-        <option value="CTR" {{if usCTR_selected}}selected{{endif usCTR_selected}}>Inactivo</option>
+    <section>
+      <label for="userpswdexp">Usuario password expiracion</label>
+      <input type="date" {{readonly}} name="userpswdexp" value="{{userpswdexp}}" maxlength="450" placeholder="Fecha"/>
+    </section>
+    <section>
+      <label for="userest">userest</label>
+      {{if readonly}}
+       <input type="hidden" id="userestdummy" name="userest" value="userest" />
+      {{endif readonly}}
+      <select id="userest" name="userest" {{if readonly}}disabled{{endif readonly}}>
+        <option value="ACT" {{userest_ACT}}>Activo</option>
+        <option value="INA" {{userest_INA}}>Inactivo</option>
+        <option value="PLN" {{userest_PLN}}>Planificación</option>
       </select>
     </section>
-
-    <section class="row my-2 align-center">
-      <label for="useractcod" class="col-4">useractcod</label>
-      <input type="text" class="col-8" name="useractcod" id="useractcod" 
-      placeholder="Ingrese su useractcod" {{if readonly}}disabled {{endif readonly}} value="{{useractcod}}" required>
+    <section>
+      <label for="useractcod">useractcod</label>
+      <input type="text" {{readonly}} name="useractcod" value="{{useractcod}}" maxlength="450" placeholder="useractcod"/>
     </section>
-
-    <section class="row my-2 align-center">
-      <label for="usertipo" class="col-4">Tipo de usuario</label>
-      <select name="usertipo" class="col-8" id="usertipo" {{if readonly}}disabled {{endif readonly}}>
-        <option value="ACT" {{if usTipoACT_selected}}selected{{endif usTipoACT_selected}}>Activo</option>
-        <option value="CTR" {{if usTipoCTR_selected}}selected{{endif usTipoCTR_selected}}>Inactivo</option>
+    <section>
+      <label for="userpswdchg">userpswdchg</label>
+      <input type="text" {{readonly}} name="userpswdchg" value="{{userpswdchg}}" maxlength="450" placeholder="userpswdchg"/>
+    </section>
+    <section>
+      <label for="usertipo">usertipo</label>
+      {{if readonly}}
+       <input type="hidden" id="usertipodummy" name="usertipo" value="" />
+      {{endif readonly}}
+      <select id="usertipo" name="usertipo" {{if readonly}}disabled{{endif readonly}}>
+        <option value="ACT" {{usertipo_ACT}}>Activo</option>
+        <option value="INA" {{usertipo_INA}}>Inactivo</option>
+        <option value="PLN" {{usertipo_PLN}}>Planificación</option>
       </select>
     </section>
+    </div>
+    
+    {{if hasErrors}}
+        <section>
+          <ul>
+            {{foreach Errors}}
+                <li>{{this}}</li>
+            {{endfor Errors}}
+          </ul>
+        </section>
+    {{endif hasErrors}}
 
-    <br/><br/>
-    <section class="row flex-end my-2">
-      {{if showSaveBtn}}
 
-      <button class="mx-2 primary"  type="submit" name="btnGuardar">Guardar</button>
-
-      {{endif showSaveBtn}}
-
-      <button id="btnCancelar">Cancelar</button>
+    <div class="funciones-title">
+      
+      {{if editarUsuario}}
+        <h2>Roles Usuario</h2>
+        <a href="index.php?page=mnt_usuariorol&mode={{mode}}&usercod={{usercod}}">Editar</a>
+      {{endif editarUsuario}}
+    </div>
+    <section class="funciones">
+    {{foreach funciones}}
+        <div class="fnitems">
+          <p>{{fndsc}}</p>
+        </div>
+    {{endfor funciones}}
     </section>
-    <script>
-      document.getElementById("btnCancelar").addEventListener("click", function(event){
-        event.preventDefault();
-        window.location.href = "index.php?page=Mnt-Usuarios";
+
+
+    <section>
+      {{if showaction}}
+      <button type="submit" name="btnGuardar" value="G" class="btn btn-dark btn-sm btn-block">Guardar</button>
+      {{endif showaction}}
+      <button type="button" id="btnCancelar" class="btn btn-danger btn-sm btn-block">Cancelar</button>
+    </section>
+  </form>
+</section>
+
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function(){
+      document.getElementById("btnCancelar").addEventListener("click", function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        window.location.assign("index.php?page=mnt_usuarios");
       });
-    </script>
-</form>
+  });
+</script>

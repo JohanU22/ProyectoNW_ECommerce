@@ -1,17 +1,19 @@
-<?php 
+<?php
 namespace Controllers\Mnt;
 
-use Controllers\PublicController;
-use Dao\Dao;
+use Controllers\PrivateController;
+
 use Views\Renderer;
 
-class Funciones extends PublicController{
+Class Funciones extends PrivateController
+{
     public function run(): void
     {
         $viewData = array();
-        $viewData["funciones"] = \Dao\Mnt\Funciones::getAllFunciones();
-
-        Renderer::render("mnt/funciones", $viewData);
+        $viewData["items"] = \Dao\Mnt\Funciones::obtenerFunciones();
+        $viewData["new_enabled"] = true;
+        $viewData["edit_enabled"] = true;
+        $viewData["delete_enabled"] = true;
+        Renderer::render("mnt/funciones",$viewData);
     }
 }
-?>

@@ -1,17 +1,20 @@
-<?php 
+<?php
+
 namespace Controllers\Mnt;
 
 use Controllers\PublicController;
-use Dao\Dao;
 use Views\Renderer;
 
-class Roles extends PublicController{
+class Roles extends PublicController
+{
     public function run(): void
     {
         $viewData = array();
-        $viewData["roles"] = \Dao\Mnt\Roles::getAllRoles();
-
+        $viewData["items"] = \Dao\Mnt\Roles::obtenerRoles();
+        // dd($viewData);
+        $viewData["new_enabled"] = true;
+        $viewData["edit_enabled"] = true;
+        $viewData["delete_enabled"] = true;
         Renderer::render("mnt/roles", $viewData);
     }
 }
-?>
